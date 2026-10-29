@@ -1,9 +1,9 @@
 "use client";
-import Link from "next/link";
-import React from "react";
-import { useState, type ChangeEvent,type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+
 import axios from "axios";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import toast from "react-hot-toast";
 
 type FormState = {
@@ -20,197 +20,200 @@ const initialState: FormState = {
   confirmPassword: "",
 };
 
-export default function SignupPage(){
+export default function SignupPage() {
   const router = useRouter();
-    const [form, setForm] = useState<FormState>(initialState);
-    const [showPassword, setShowPassword] = useState(false);
-    const [acceptedTerms, setAcceptedTerms] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
-    const[user,setUser] = React.useState({
-        email: "",
-        password: "",
-        username: "",
-    })
+  const [form, setForm] = useState<FormState>(initialState);
+  const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const onSignup = async(e: React.FormEvent<HTMLFormElement>)=>{
-      e.preventDefault();
-      setError(null);
-      try {
-        setLoading(true)
-        const response = await axios.post("/api/users/signup", form);
-        console.log("Signup successful", response.data);
-        toast.success("Signup successful! Please check your email to verify your account.");
-        setSuccess(true);
-        router.push("/login");
-        
-      } catch (error:any) {
-        console.log("Signup failed",error.message);
-        
-        toast.error(error.message);
-      } finally{
-        setLoading(false)
-      }
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError(null);
+  }
+
+  async function onSignup(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (!acceptedTerms) {
+      setError("Please accept the Terms of Service.");
+      return;
+    }
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
     }
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{
-      const { name, value } = e.target;
-      setForm((prev) => ({ ...prev, [name]: value }));
-      if (error) setError(null);
+    try {
+      setLoading(true);
+      await axios.post("/api/users/signup", form);
+      toast.success("Account created! Please sign in.");
+      router.push("/login");
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error ?? err?.message ?? "Signup failed";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    return(
-        <main className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black px-4 py-12">
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-black">
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-white dark:text-white">
-            Welcome To <span className="text-indigo-600">Auth-App</span>
+          <Link href="/" className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            Auth <span className="text-indigo-600">App</span>
           </Link>
-          <h1 className="mt-6 text-2xl font-semibold text-gray-400">Create your account</h1>
-          <p className="mt-2 text-sm text-gray-400">
-            Start your free account. No headache required lol.
+          <h1 className="mt-6 text-2xl font-semibold text-zinc-900 dark:text-white">
+            Create your account
+          </h1>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            Start your free Auth account. No headache required LOL
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm sm:p-8">
-          {success ? (
-            <div className="rounded-lg bg-green-50 p-4 text-sm text-green-800">
-              <p className="font-medium">Account created 🎉</p>
-              <p className="mt-1">Check your inbox to verify your email.</p>
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8 dark:border-zinc-800 dark:bg-zinc-900">
+          <form onSubmit={onSignup} className="space-y-5" noValidate>
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Full name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Jane Doe"
+                className="mt-1 block w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 dark:border-zinc-700 dark:text-white"
+              />
             </div>
-          ) : (
-            <form onSubmit={onSignup} className="space-y-5" noValidate>
-              {/* Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Full name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Jane Doe"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30"
-                />
-              </div>
 
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30"
-                />
-              </div>
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className="mt-1 block w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 dark:border-zinc-700 dark:text-white"
+              />
+            </div>
 
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="relative mt-1">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    required
-                    value={form.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 pr-16 text-gray-900 placeholder-gray-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute inset-y-0 right-2 my-auto h-7 rounded-md px-2 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
-                <p className="mt-1 text-xs text-gray-500">At least 8 characters.</p>
-              </div>
-
-              {/* Confirm password */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirm password
-                </label>
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Password
+              </label>
+              <div className="relative mt-1">
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  value={form.confirmPassword}
+                  value={form.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30"
+                  className="block w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 pr-16 text-zinc-900 placeholder-zinc-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 dark:border-zinc-700 dark:text-white"
                 />
-              </div>
-
-              {/* Terms */}
-              <label className="flex items-start gap-2 text-sm text-gray-600">
-                <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span>
-                  I agree to the{" "}
-                  <Link href="/terms" className="font-medium text-indigo-600 hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="font-medium text-indigo-600 hover:underline">
-                    Privacy Policy
-                  </Link>
-                  .
-                </span>
-              </label>
-
-              {/* Error */}
-              {error && (
-                <p
-                  role="alert"
-                  className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-2 my-auto h-7 rounded-md px-2 text-xs font-medium text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
                 >
-                  {error}
-                </p>
-              )}
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                At least 8 characters.
+              </p>
+            </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            {/* Confirm Password */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Confirm password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                required
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="mt-1 block w-full rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 dark:border-zinc-700 dark:text-white"
+              />
+            </div>
+
+            {/* Terms */}
+            <label className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-800"
+              />
+              <span>
+                I agree to the{" "}
+                <Link href="/terms" className="font-medium text-indigo-600 hover:underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="font-medium text-indigo-600 hover:underline">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+
+            {/* Error */}
+            {error && (
+              <p
+                role="alert"
+                className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-400"
               >
-                {loading && (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                )}
-                {loading ? "Creating account…" : "Create account"}
-              </button>
-            </form>
-          )}
+                {error}
+              </p>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-zinc-900"
+            >
+              {loading && (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              )}
+              {loading ? "Creating account…" : "Create account"}
+            </button>
+          </form>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
           Already have an account?{" "}
           <Link href="/login" className="font-semibold text-indigo-600 hover:underline">
             Sign in
