@@ -1,9 +1,12 @@
+import { connection } from 'next/server';
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { redirect } from "next/navigation";
 import DashboardClient from "./DashboardClient";
 
+
 export default async function ProfilePage() {
+  await connection();
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 

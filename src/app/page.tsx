@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { Suspense } from "react";
+import { connection } from 'next/server';
 
 // --- Header Dynamic Buttons ---
 async function AuthButtons() {
@@ -11,7 +12,7 @@ async function AuthButtons() {
     <div className="flex items-center gap-3 text-sm font-medium">
       {token ? (
         <Link
-          href="/profile/${user.id}"
+          href="/profile"
           className="rounded-lg bg-indigo-600 px-4 py-2 text-white shadow-sm transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-black"
         >
           Go to Profile
