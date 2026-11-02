@@ -47,7 +47,7 @@ export default async function UserProfile({ params }: PageProps) {
                 </div>
                 <div className="pb-1">
                   {/* Name! */}
-                  <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                  <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mt-12">
                     {user.name}
                   </h1>
                   <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
@@ -62,6 +62,12 @@ export default async function UserProfile({ params }: PageProps) {
                   className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:flex-none dark:focus:ring-offset-zinc-900"
                 >
                   Edit profile
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:flex-none dark:focus:ring-offset-zinc-900"
+                >
+                  Logout
                 </button>
               </div>
             </div>
