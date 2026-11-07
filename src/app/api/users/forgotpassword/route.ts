@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/userModel";
 import { sendEmail } from "@/helpers/mailer";
 
+export const dynamic = 'force-dynamic'; 
+
 export async function POST(req: NextRequest) {
     try{
         await connect();

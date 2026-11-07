@@ -3,6 +3,8 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { notFound } from "next/navigation";
 
+export const dynamic = 'force-dynamic'; 
+
 type PageProps = {
   params: Promise<{ id: string }>;
 };
