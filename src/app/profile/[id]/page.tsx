@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
-import { notFound } from "next/navigation";
-
-export const dynamic = 'force-dynamic'; 
+import { notFound } from "next/navigation"; 
 
 type PageProps = {
   params: Promise<{ id: string }>;
